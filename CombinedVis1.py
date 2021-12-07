@@ -18,7 +18,6 @@ df_countries = pd.read_csv("./COW_Trade_4.0/COW_Trade_4.0/National_COW_4.0.csv")
 
 
 app = dash.Dash(__name__,
-                # external_stylesheets=external_stylesheets,
                 title="Trade Data")
 
 app.layout = html.Div([
@@ -31,17 +30,22 @@ app.layout = html.Div([
     html.Div([
             html.Div([
                 html.Div([
-                    dcc.Dropdown(
-                        id='property',
-                        options = [{'label':'imports', 'value': 'imports'}, {'label':'exports', 'value':'exports'}],
-                        value='imports'
-                    ),
-                    dcc.Graph(
-                        id='NationalBubbleChart'
-                    )
+                    html.Div([
+                        dcc.Dropdown(
+                            id='property',
+                            options = [{'label':'imports', 'value': 'imports'}, {'label':'exports', 'value':'exports'}],
+                            value='imports'
+                        )
+                    ],
+                    className="two columns"),
+                    html.Div([
+                        dcc.Graph(
+                            id='NationalBubbleChart'
+                        )
+                    ],
+                    className="ten columns")                    
                 ])
-            ],
-            className="twelve columns")
+            ])
         ],
         className="row"
     ),
@@ -115,8 +119,20 @@ def update(clickdata):
 
     timePeriod = [i+ 1870 for i in range(2010-1870)]
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=timePeriod, y = df_new_countries['imports']))
-    fig.add_trace(go.Bar(x=timePeriod, y = -1*df_new_countries['exports']))
+    fig.add_trace(go.Bar(x=timePeriod, y = df_new_countries['imports'], name='Imports'))
+    fig.add_trace(go.Bar(x=timePeriod, y = -1*df_new_countries['exports'], name='Exports'))
+    
+    fig.update_layout(
+        legend=dict(
+            x=0,
+            y=1.0,
+            bgcolor='rgba(255, 255, 255, 0)',
+            bordercolor='rgba(255, 255, 255, 0)'
+        ),
+        margin={"r":0,"t":0,"l":0,"b":0}
+    )
+
+    fig.update_xaxes(side="top")
     
     return fig
 
