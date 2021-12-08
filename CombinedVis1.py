@@ -12,8 +12,6 @@ df_trades = pd.read_csv("./COW_Trade_4.0/COW_Trade_4.0/Dyadic_COW_4.0.csv")
 
 df_trades['PathName'] = df_trades['importer1'] + "_" + df_trades['importer2']
 
-year = 2000
-
 df_countries = pd.read_csv("./COW_Trade_4.0/COW_Trade_4.0/National_COW_4.0.csv")
 
 
@@ -133,7 +131,7 @@ def update(clickdata):
     )
 
     fig.update_xaxes(side="top")
-    
+
     return fig
 
 
