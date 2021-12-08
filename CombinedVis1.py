@@ -68,13 +68,6 @@ def plotTradeDef(countryName):
     return fig
 
 
-
-
-
-
-
-
-
 app = dash.Dash(__name__,
                 title="Trade Data")
 
@@ -160,7 +153,7 @@ def update_graph(year, property):
         geo=dict(
             showcountries=True,
         ),
-        height=500,
+        height=450,
         margin={"r":0,"t":0,"l":0,"b":0}
     )
     return fig
@@ -171,7 +164,10 @@ def update_graph(year, property):
     Input('NationalBubbleChart','clickData')
 )
 def update(clickdata):
-    countryName = clickdata['points'][0]['location']
+    if clickdata==None:
+        countryName = "India"
+    else:
+        countryName = clickdata['points'][0]['location']
     raw_data = changeCountry(countryName,df_countries)
     fig = go.Figure()
     fig.add_trace(go.Bar(x=raw_data['year'], y=raw_data['imports']*-1,
