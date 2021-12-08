@@ -14,7 +14,65 @@ df_trades['PathName'] = df_trades['importer1'] + "_" + df_trades['importer2']
 
 year = 2000
 
+
+
+# data prcessing for country data 
+
 df_countries = pd.read_csv("./COW_Trade_4.0/COW_Trade_4.0/National_COW_4.0.csv")
+df_countries.drop(['alt_imports', 'alt_exports', 'source1', 'source2', 'version'],axis='columns', inplace=True)
+
+df_countries.columns
+df_countries["imports"].fillna(1,inplace= True)
+df_countries["exports"].fillna(1, inplace = True)
+
+c_codes = df_countries["ccode"].unique()
+c_data = df_countries.loc[:, ['statename','stateabb','ccode']].drop_duplicates()
+c_data.set_index("ccode",drop= True, inplace=True)
+countries = c_data.to_dict(orient="index")
+
+df_countries["Log_imports"] = np.log2(df_countries["imports"])
+df_countries["Log_exports"] = np.log2(df_countries["exports"])
+
+def changeCountry(countryName,df_countries):
+    data = df_countries.loc[df_countries["statename"] == countryName]
+    raw_data = data.loc[:, ['year','imports','exports']]
+    return raw_data
+
+def getCountryName(countryCode):
+    return countries[countryCode]["statename"]
+
+def plotTradeDef(countryName):
+    raw_data = changeCountry(countryName,df_countries)
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=raw_data['year'], y=raw_data['imports']*-1,
+                base=0,
+                marker_color='crimson',
+                name='imports'))
+    fig.add_trace(go.Bar(x=raw_data['year'], y=raw_data['exports'],
+                base=0,
+                marker_color='green',
+                name='exports'
+                ))
+    fig.add_trace(go.Bar(x=raw_data['year'], y=raw_data['exports'] - raw_data['imports'],
+                base=0,
+                marker_color='blue',
+                name='Trade deficit'
+                ))
+                
+    fig.update_layout(
+    title="Trade of "+ countryName,
+    xaxis_title="Year",
+    yaxis_title="Millions of Dollars",
+    legend_title="Quantity")
+
+    return fig
+
+
+
+
+
+
+
 
 
 app = dash.Dash(__name__,
@@ -114,14 +172,23 @@ def update_graph(year, property):
 )
 def update(clickdata):
     countryName = clickdata['points'][0]['location']
-    df_new_countries = df_countries[df_countries['statename']==countryName].copy()
-    df_new_countries[pd.isna(df_new_countries["imports"])]=0
-
-    timePeriod = [i+ 1870 for i in range(2010-1870)]
+    raw_data = changeCountry(countryName,df_countries)
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=timePeriod, y = df_new_countries['imports'], name='Imports'))
-    fig.add_trace(go.Bar(x=timePeriod, y = -1*df_new_countries['exports'], name='Exports'))
-    
+    fig.add_trace(go.Bar(x=raw_data['year'], y=raw_data['imports']*-1,
+                base=0,
+                marker_color='crimson',
+                name='imports'))
+    fig.add_trace(go.Bar(x=raw_data['year'], y=raw_data['exports'],
+                base=0,
+                marker_color='green',
+                name='exports'
+                ))
+    fig.add_trace(go.Bar(x=raw_data['year'], y=raw_data['exports'] - raw_data['imports'],
+                base=0,
+                marker_color='blue',
+                name='Trade deficit'
+                ))
+
     fig.update_layout(
         legend=dict(
             x=0,
@@ -131,6 +198,11 @@ def update(clickdata):
         ),
         margin={"r":0,"t":0,"l":0,"b":0}
     )
+    fig.update_layout(
+    title="Trade of "+ countryName,
+    xaxis_title="Year",
+    yaxis_title="Millions of Dollars",
+    legend_title="Quantity")
 
     fig.update_xaxes(side="top")
     
