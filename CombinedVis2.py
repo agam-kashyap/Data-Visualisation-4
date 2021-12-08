@@ -170,6 +170,8 @@ def update_topten(country1, property, year):
     new_locations = df_trades[df_trades["importer1"] == country1].reset_index().copy()
 
     bar_graph_values = new_locations.sort_values(by=[property]).copy()[-10:]
+    
+    bar_graph_values.loc[bar_graph_values[property] < 0,property] = 0
 
     fig = go.Figure(go.Bar(
                 x= bar_graph_values[property],
