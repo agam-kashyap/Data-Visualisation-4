@@ -82,6 +82,7 @@ app.layout = html.Div([
             html.Div([
                 html.Div([
                     html.Div([
+                        html.H3("National Trade Visualisations"),
                         dcc.Dropdown(
                             id='property',
                             options = [{'label':'imports', 'value': 'imports'}, {'label':'exports', 'value':'exports'}],
@@ -108,7 +109,11 @@ app.layout = html.Div([
             step=1,
             value=[1970, 2000],
             allowCross=False,
-            tooltip={"placement": "bottom", "always_visible": True}
+            tooltip={"placement": "bottom", "always_visible": True},
+            marks={
+                    1870: {'label': '1870', 'style': {'color': '#77b0b1'}},
+                    2010: {'label': '2010', 'style': {'color': '#f50'}}
+                }
         )
     ]),
     html.Div([
@@ -152,6 +157,12 @@ def update_graph(year, property):
     fig.update_layout(
         geo=dict(
             showcountries=True,
+            showland=True,
+            landcolor = "rgb(212, 195, 164 )",
+            showlakes = True,
+            lakecolor = "rgb(255, 255, 255)",
+            showocean=True,
+            oceancolor="rgba(126, 196, 255,0.5)"
         ),
         height=450,
         margin={"r":0,"t":0,"l":0,"b":0}

@@ -24,6 +24,7 @@ app = dash.Dash(__name__,
                 title="Dyadic Visualisations")
 
 app.layout = html.Div([
+    html.H3("Dyadic Visualisations"),
     html.Div([
         html.Div([
             dcc.Graph(
@@ -44,7 +45,12 @@ app.layout = html.Div([
             min=1870,
             max=2010,
             value=1970,
-            tooltip={"placement": "bottom", "always_visible": True}
+            tooltip={"placement": "bottom", "always_visible": True},
+            included=False,
+            marks={
+                    1870: {'label': '1870', 'style': {'color': '#77b0b1'}},
+                    2010: {'label': '2010', 'style': {'color': '#f50'}}
+                },
         )
     ],className="row"),
     html.Div([
@@ -95,6 +101,8 @@ def update_world_map(country1, property, year):
     temp_locations = df_trades[df_trades["importer1"] == country1].reset_index().copy()
     final_locations = pd.DataFrame([],columns = df_trades.columns)
 
+    if len(temp_locations)==0:
+        fig.add_trace(go.Scattergeo())
     for i in range(len(temp_locations)): 
         to_insert = pd.DataFrame([],columns = df_trades.columns) 
         to_insert_orig = to_insert.append(temp_locations.loc[i])
@@ -122,6 +130,12 @@ def update_world_map(country1, property, year):
     fig.update_layout(
         geo=dict(
             showcountries=True,
+            showland=True,
+            landcolor = "rgb(212, 195, 164 )",
+            showlakes = True,
+            lakecolor = "rgb(255, 255, 255)",
+            showocean=True,
+            oceancolor="rgba(126, 196, 255,0.5)"
         ),
         margin={"r":0,"t":0,"l":0,"b":0}
     )
@@ -144,16 +158,18 @@ def set_country2_values(available_options):
 @app.callback(
     Output('Line-chart-twoCountries','figure'),
     Input('country1','value'),
-    Input('country2', 'value')
+    Input('country2', 'value'),
+    Input('property','value')
 )
-def update_line_chart(importer1, importer2):
+def update_line_chart(importer1, importer2, property):
     df = df_dyadic.loc[(df_dyadic["importer1"] == importer1) & (df_dyadic["importer2"]==importer2)].copy()
     
-    fig = go.Figure(go.Scatter(x=df["year"], y=df['flow1']))
+    fig = go.Figure(go.Scatter(x=df["year"], y=df[property]))
     fig.update_layout(
         xaxis_range=[1870, 2009],
         yaxis_range=[-20000, 60000],
-        margin={"r":0,"t":0,"l":0,"b":0}
+        margin={"r":0,"t":0,"l":0,"b":0},
+        height=400
     )
 
     return fig
@@ -177,7 +193,10 @@ def update_topten(country1, property, year):
                 x= bar_graph_values[property],
                 y= bar_graph_values['importer2'],
                 orientation='h'))
-
+    fig.update_layout(
+        height=400,
+        margin={"r":0,"t":0,"l":0,"b":0}
+    )
     return fig
 
 
