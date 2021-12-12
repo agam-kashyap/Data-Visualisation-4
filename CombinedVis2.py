@@ -169,7 +169,14 @@ def update_line_chart(importer1, importer2, property):
         xaxis_range=[1870, 2009],
         yaxis_range=[-20000, 60000],
         margin={"r":0,"t":0,"l":0,"b":0},
-        height=400
+        height=400,
+        xaxis_title="Year",
+        yaxis_title="Trade Value",
+        title={
+            'text': "Trade of "+ importer1 + " with "+ importer2, 
+            'y': 0.9,
+            'x': 0.5
+        }
     )
 
     return fig
